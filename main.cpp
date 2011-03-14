@@ -10,11 +10,12 @@
 #include <stdlib.h>
 #include <iostream>
 #include <sys/time.h>
-#include <conio.h>
+//#include <conio.h>
 #include <string.h>
 #include <dos.h>
 #include <sstream>
 #include <fstream>
+#include <curses.h>
 
 #include "Console.h"
 #include "main.h"
@@ -503,7 +504,6 @@ void nonFreeGameLoop()
                     con->setScore1("WOW!!!");
                     con->setScore2(amaizingScore);
                     break;
-
             }
 
             if (true == timeConsumingSleep(5000, false, true))

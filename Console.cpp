@@ -8,6 +8,7 @@
 #include "Console.h"
 #include <iostream>
 #include <sstream>
+#include <curses.h>
 
 #define VERSION "               V 0.8"
 #define MARQUEE_MAX_SIZE 16
@@ -125,6 +126,7 @@ void Console::setScore2(short score2)
 void Console::show()
 {
     system("cls");
+    
     cout << "+------------------+" << endl;
     cout << "| " << this->_marquee << " |" << endl;
     cout << "| " << this->_score1 << " || " << this->_score2 << " |" << endl;
