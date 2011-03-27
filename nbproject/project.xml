@@ -14,6 +14,8 @@
             <confList>
                 <confElem>Debug</confElem>
                 <confElem>Release</confElem>
+                <confElem>Debug_UNIX</confElem>
+                <confElem>Release_UNIX</confElem>
             </confList>
         </data>
     </configuration>

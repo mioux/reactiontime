@@ -22,7 +22,7 @@ AS=as
 
 # Macros
 CND_PLATFORM=MinGW_1-Linux-x86
-CND_CONF=Release
+CND_CONF=Release_UNIX
 CND_DISTDIR=dist
 
 # Include project Makefile
@@ -41,8 +41,8 @@ OBJECTFILES= \
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=-static-libgcc -static-libstdc++
-CXXFLAGS=-static-libgcc -static-libstdc++
+CCFLAGS=
+CXXFLAGS=
 
 # Fortran Compiler Flags
 FFLAGS=
@@ -51,33 +51,33 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-lpdcurses
+LDLIBSOPTIONS=-lcurses
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	"${MAKE}"  -f nbproject/Makefile-Release.mk dist/Release/MinGW_1-Linux-x86/reactiontime
+	"${MAKE}"  -f nbproject/Makefile-Release_UNIX.mk dist/Release_UNIX/MinGW_1-Linux-x86/reactiontime
 
-dist/Release/MinGW_1-Linux-x86/reactiontime: ${OBJECTFILES}
-	${MKDIR} -p dist/Release/MinGW_1-Linux-x86
+dist/Release_UNIX/MinGW_1-Linux-x86/reactiontime: ${OBJECTFILES}
+	${MKDIR} -p dist/Release_UNIX/MinGW_1-Linux-x86
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/reactiontime ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O3 -Wall -DWINDOWS -DRELEASE -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
+	$(COMPILE.cc) -O3 -Wall -DUNIX -DRELEASE -MMD -MP -MF $@.d -o ${OBJECTDIR}/main.o main.cpp
 
 ${OBJECTDIR}/Console.o: Console.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O3 -Wall -DWINDOWS -DRELEASE -MMD -MP -MF $@.d -o ${OBJECTDIR}/Console.o Console.cpp
+	$(COMPILE.cc) -O3 -Wall -DUNIX -DRELEASE -MMD -MP -MF $@.d -o ${OBJECTDIR}/Console.o Console.cpp
 
 # Subprojects
 .build-subprojects:
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
-	${RM} -r build/Release
-	${RM} dist/Release/MinGW_1-Linux-x86/reactiontime
+	${RM} -r build/Release_UNIX
+	${RM} dist/Release_UNIX/MinGW_1-Linux-x86/reactiontime
 
 # Subprojects
 .clean-subprojects:

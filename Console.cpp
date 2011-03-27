@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <curses.h>
+#include <string.h>
 
 #define VERSION "               V 0.8"
 #define MARQUEE_MAX_SIZE 16
@@ -71,7 +72,7 @@ void Console::setMarquee(string marquee)
 {
     this->_marquee = this->formatText(marquee, MARQUEE_MAX_SIZE);
     
-    this->show();
+    mvprintw(1, 2, this->_marquee.c_str());
 }
 
 string Console::scoreToString(short score)
@@ -96,7 +97,9 @@ string Console::scoreToString(short score)
 void Console::setScore1(string score1)
 {
     this->_score1 = this->formatText(score1, TEXT_MAX_SIZE);
-    this->show();
+
+    mvprintw(2, 2, this->_score1.c_str());
+    this->refresh();
 }
 
 void Console::setScore1(short score1)
@@ -111,7 +114,9 @@ void Console::setScore1(short score1)
 void Console::setScore2(string score2)
 {
     this->_score2 = this->formatText(score2, TEXT_MAX_SIZE);
-    this->show();
+    
+    mvprintw(2, 12, this->_score2.c_str());
+    this->refresh();
 }
 
 void Console::setScore2(short score2)
@@ -125,12 +130,17 @@ void Console::setScore2(short score2)
 
 void Console::show()
 {
-    system("cls");
-    
-    cout << "+------------------+" << endl;
-    cout << "| " << this->_marquee << " |" << endl;
-    cout << "| " << this->_score1 << " || " << this->_score2 << " |" << endl;
-    cout << "+--------++--------+" << endl;
-    cout << VERSION << endl;
+    clear();
 
+    printw("+------------------+\n");
+    printw("| "); printw(this->_marquee.c_str()); printw(" |\n");
+    printw("| "); printw(this->_score1.c_str()); printw(" || ");printw(this->_score2.c_str()); printw(" |\n");
+    printw("+--------++--------+\n");
+    printw(VERSION);
+    printw("\n");
+}
+
+void Console::refresh()
+{
+    refresh();
 }

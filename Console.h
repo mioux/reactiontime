@@ -23,6 +23,7 @@ public:
     void setScore2(string score2);
     void setScore1(short score1);
     void setScore2(short score2);
+    void refresh();
 private:
     string _marquee;
     string _score1;
