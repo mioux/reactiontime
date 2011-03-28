@@ -12,8 +12,6 @@
 
 extern void writeDefaultConfigFile();
 extern short score(long long realScore);
-extern bool timeConsumingSleep(int msTime, bool checkForFoul, bool checkForCredit);
-extern bool timeConsumingSleep(int msTime, bool checkForFoul);
 extern long long totalMilliseconds(const timeval * const start, const timeval * const end);
 extern long long reactionTimeSolo();
 extern void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2);

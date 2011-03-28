@@ -10,6 +10,10 @@
 
 #include <string>
 #include <stdlib.h>
+#include <iostream>
+#include <sstream>
+#include <curses.h>
+#include <string.h>
 
 using namespace std;
 
@@ -28,9 +32,11 @@ private:
     string _marquee;
     string _score1;
     string _score2;
-    void show();
     string scoreToString(short score);
     string formatText(string text, short size);
+    WINDOW *_window;
+    int _y_max;
+    int _x_max;
 };
 
 #endif	/* CONSOLE_H */

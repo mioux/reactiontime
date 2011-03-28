@@ -6,14 +6,14 @@
  */
 
 #include "Console.h"
-#include <iostream>
-#include <sstream>
-#include <curses.h>
-#include <string.h>
+#include <assert.h>
 
-#define VERSION "               V 0.8"
+#define VERSION "Version 0.9"
 #define MARQUEE_MAX_SIZE 16
 #define TEXT_MAX_SIZE 6
+
+#define SCREEN_X 18
+#define SCREEN_Y 4
 
 using namespace std;
 
@@ -22,11 +22,29 @@ using namespace std;
  */
 Console::Console()
 {
-    this->setMarquee("");
-    this->setScore1("");
-    this->setScore2("");
+    int x_center = (COLS - SCREEN_X) / 2;
+    int y_center = (LINES - SCREEN_Y) / 2;
 
-    this->show();
+    mvprintw(LINES - 1, COLS - strlen(VERSION), VERSION);
+    refresh();
+
+    this->_window = newwin(SCREEN_Y, SCREEN_X, y_center, x_center);
+    /*wborder(this->_window, (char)186, (char)186, // ||
+                           (char)205, (char)205, // =
+                           (char)201, (char)187, // coins haut
+                           (char)200, (char)188); //coins bas*/
+
+    box(this->_window, 0 , 0);
+
+    mvwprintw(this->_window, 2, 8, "||");
+
+    this->setMarquee("XXXXXXXXXXXXXXXX");
+    this->setScore1("XXXXXX");
+    this->setScore2("XXXXXX");
+
+    this->win_refresh();
+
+    //this->show();
 }
 
 /*
@@ -72,20 +90,20 @@ void Console::setMarquee(string marquee)
 {
     this->_marquee = this->formatText(marquee, MARQUEE_MAX_SIZE);
     
-    mvprintw(1, 2, this->_marquee.c_str());
+    mvwprintw(this->_window, 1, 1, this->_marquee.c_str());
 }
 
 string Console::scoreToString(short score)
 {
     ostringstream oss (ostringstream::out);
     if (score < 10)
-        oss << "    " << score;
+        oss << "     " << score;
     else if (score < 100)
-        oss << "   " << score;
+        oss << "    " << score;
     else if (score < 1000)
-        oss << "  " << score;
+        oss << "   " << score;
     else
-        oss << " " << score;
+        oss << "  " << score;
 
     return oss.str();
 }
@@ -98,7 +116,7 @@ void Console::setScore1(string score1)
 {
     this->_score1 = this->formatText(score1, TEXT_MAX_SIZE);
 
-    mvprintw(2, 2, this->_score1.c_str());
+    mvwprintw(this->_window, 2, 1, this->_score1.c_str());
 }
 
 void Console::setScore1(short score1)
@@ -114,7 +132,7 @@ void Console::setScore2(string score2)
 {
     this->_score2 = this->formatText(score2, TEXT_MAX_SIZE);
     
-    mvprintw(2, 12, this->_score2.c_str());
+    mvwprintw(this->_window, 2, 11, this->_score2.c_str());
 }
 
 void Console::setScore2(short score2)
@@ -126,19 +144,7 @@ void Console::setScore2(short score2)
  * Display scores
  */
 
-void Console::show()
-{
-    clear();
-
-    printw("+------------------+\n");
-    printw("| "); printw(this->_marquee.c_str()); printw(" |\n");
-    printw("| "); printw(this->_score1.c_str()); printw(" || ");printw(this->_score2.c_str()); printw(" |\n");
-    printw("+--------++--------+\n");
-    printw(VERSION);
-    printw("\n");
-}
-
 void Console::win_refresh()
 {
-    refresh();
+    wrefresh(this->_window);
 }
