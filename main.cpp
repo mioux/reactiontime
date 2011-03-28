@@ -63,7 +63,7 @@ Console *con;
  * Implementation of sleep for DOS.
  */
 
-int timeConsumingSleep(long long timeToWait)
+void timeConsumingSleep(long long timeToWait)
 {
     timeval *startTime = (timeval *)malloc(sizeof(struct timeval));
     timeval *diffTime = (timeval *)malloc(sizeof(struct timeval));
@@ -74,10 +74,7 @@ int timeConsumingSleep(long long timeToWait)
     {
         gettimeofday(diffTime, NULL);
         waitedTime = totalMilliseconds(diffTime, startTime);
-        cout << waitedTime << endl;
     }
-    string test;
-    cin >> test;
 }
 
 /*
@@ -107,7 +104,7 @@ long long totalMilliseconds(const timeval * const start, const timeval * const e
     long long totalStart = start->tv_usec + 1000000L * start->tv_sec;
     long long totalEnd = end->tv_usec + 1000000L * end->tv_sec;
 
-    return totalStart - totalEnd;
+    return (totalStart - totalEnd) / 1000L;
 }
 
 /*
@@ -129,6 +126,7 @@ long long reactionTimeSolo()
         exit(EXIT_FAILURE);
     }
 
+    beep();
     con->setScore1(READY);
     con->win_refresh();
 
@@ -165,7 +163,7 @@ long long reactionTimeSolo()
     }
     gettimeofday(endTime, NULL);
 
-    long long totalTime = totalMilliseconds(endTime, startTime) / 1000L;
+    long long totalTime = totalMilliseconds(endTime, startTime);
 
     free(startTime);
     free(endTime);
@@ -200,6 +198,7 @@ void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2)
         exit(EXIT_FAILURE);
     }
 
+    beep();
     con->setScore1(READY);
     con->setScore2(READY);
     con->win_refresh();
@@ -243,14 +242,14 @@ void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2)
         if ((p1Switch == key) && 0L == currentTimeP1)
         {
             gettimeofday(endTime, NULL);
-            currentTimeP1 = totalMilliseconds(endTime, startTime) / 1000L;
+            currentTimeP1 = totalMilliseconds(endTime, startTime);
             con->setScore1(score(currentTimeP1));
             con->win_refresh();
         }
         else if ((p2Switch == key) && 0L == currentTimeP2)
         {
             gettimeofday(endTime, NULL);
-            currentTimeP2 = totalMilliseconds(endTime, startTime) / 1000L;
+            currentTimeP2 = totalMilliseconds(endTime, startTime);
             con->setScore2(score(currentTimeP2));
             con->win_refresh();
         }
@@ -272,12 +271,28 @@ void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2)
 void onePlayerGame()
 {
     raw();
-    con->setMarquee("1P game");
+    con->setMarquee(ONE_PLAYER_GAME);
     con->win_refresh();
 
-    reactionTimeSolo();
+    long long totalTime = 0L;
 
-    timeConsumingSleep(2000);
+    _firstPlayerFoul = false;
+
+    for (int i = 0; i < 5; ++i)
+    {
+        long long currentTime = reactionTimeSolo();
+        totalTime += currentTime;
+        con->setScore1(score(currentTime));
+        con->win_refresh();
+        timeConsumingSleep(2000);
+    }
+
+    if (false == _firstPlayerFoul)
+        lastScoreP1 = totalTime;
+    else
+        lastScoreP1 = -1;
+
+    lastScoreP2 = -1;
 }
 
 /*
@@ -287,14 +302,36 @@ void onePlayerGame()
 void twoPlayerGame()
 {
     raw();
-    con->setMarquee("2P game");
+    con->setMarquee(TWO_PLAYER_GAME);
     con->win_refresh();
-    
-    long long score1;
-    long long score2;
-    reactionTimeDuo(score1, score2);
 
-    timeConsumingSleep(2000);
+    long long totalScore1 = 0L;
+    long long totalScore2 = 0L;
+
+    for (int i = 0; i < 5; ++i)
+    {
+        long long currentScore1 = 0L;
+        long long currentScore2 = 0L;
+        reactionTimeDuo(currentScore1, currentScore2);
+
+        con->setScore1(score(currentScore1));
+        con->setScore2(score(currentScore2));
+        con->win_refresh();
+
+        totalScore1 += currentScore1;
+        totalScore2 += currentScore2;
+        timeConsumingSleep(2000);
+    }
+
+    if (false == _firstPlayerFoul)
+        lastScoreP1 = totalScore1;
+    else
+        lastScoreP1 = -1;
+
+    if (false == _secondPlayerFoul)
+        lastScoreP2 = totalScore2;
+    else
+        lastScoreP2 = -1;
 }
 
 void attractMode(short cycle)
@@ -431,7 +468,7 @@ void freeGameLoop()
 
 void errorReadingConfigFile()
 {
-    cerr << ERR_CONFIG_READ;
+    cerr << ERR_CONFIG_READ << endl;
     exit(EXIT_FAILURE);
 }
 
@@ -493,7 +530,7 @@ void writeConfigFile()
     }
     else
     {
-        cerr << ERR_CONFIG_WRITE;
+        cerr << ERR_CONFIG_WRITE << endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -537,11 +574,6 @@ int main(int argc, char *argv[])
 {
     // init random for "real" random values
     srand(time(NULL));
-
-    cout << "test wait 1" << endl;
-    timeConsumingSleep(2000);
-    cout << "test wait 2" << endl;
-    timeConsumingSleep(2000);
 
     bool freeGame = false;
 

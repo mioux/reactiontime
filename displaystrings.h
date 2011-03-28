@@ -22,6 +22,8 @@
 #define FOUL                   "FOUL !"
 #define NOSCORE                "XXXXXX"
 #define ERRER_WITH_TIME        "Error creating time structure"
+#define ONE_PLAYER_GAME        "1 Player Game"
+#define TWO_PLAYER_GAME        "2 Player Game"
 
 #endif	/* DISPLAYSTRINGS_H */
 
