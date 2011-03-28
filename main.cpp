@@ -151,6 +151,8 @@ void nonFreeGameLoop()
         if (creditKey == button)
         {
             con->setMarquee("Wait for Player2");
+            con->setScore1("");
+            con->setScore2("");
 
             button = getch();
 
@@ -331,12 +333,12 @@ int main(int argc, char *argv[])
     con->setMarquee("Insertcoins.net");
     con->setScore1(lastScoreP1);
     con->setScore2(lastScoreP2);
-
+    
     if(false == freeGame)
         nonFreeGameLoop();
     else
         freeGameLoop();
-
+    
     endwin();
 
     return EXIT_SUCCESS;

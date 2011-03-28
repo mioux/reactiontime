@@ -99,7 +99,6 @@ void Console::setScore1(string score1)
     this->_score1 = this->formatText(score1, TEXT_MAX_SIZE);
 
     mvprintw(2, 2, this->_score1.c_str());
-    this->refresh();
 }
 
 void Console::setScore1(short score1)
@@ -116,7 +115,6 @@ void Console::setScore2(string score2)
     this->_score2 = this->formatText(score2, TEXT_MAX_SIZE);
     
     mvprintw(2, 12, this->_score2.c_str());
-    this->refresh();
 }
 
 void Console::setScore2(short score2)
@@ -140,7 +138,7 @@ void Console::show()
     printw("\n");
 }
 
-void Console::refresh()
+void Console::win_refresh()
 {
     refresh();
 }
