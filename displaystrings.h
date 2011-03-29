@@ -26,5 +26,14 @@
 #define TWO_PLAYER_GAME        "2 Player Game"
 #define FOULED                 "FOULED"
 
+#define CONFIG_KEY             "F1 -> redifine keys"
+#define CONFIG_P1START         "C : Start 1"
+#define CONFIG_P2START         "C : Start 2"
+#define CONFIG_P1BUTTON        "C : key 1"
+#define CONFIG_P2BUTTON        "C : key 2"
+#define CONFIG_CREDIT          "C : Credit"
+#define CONFIG_QUIT            "C : Quit"
+
+
 #endif	/* DISPLAYSTRINGS_H */
 

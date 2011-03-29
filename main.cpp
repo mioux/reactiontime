@@ -5,26 +5,9 @@
  * Created on 2 mars 2011, 12:49
  */
 
-#include <cstdlib>
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <sys/time.h>
-#include <string.h>
-#include <sstream>
-#include <fstream>
-#include <curses.h>
-#include <assert.h>
-
 #include "Console.h"
 #include "main.h"
 #include "displaystrings.h"
-
-#define FREE_GAME_SWITCH "--free-game"
-#define MAX_SCORE 9999
-#define CONFIG_FILE "rtime.cfg"
-#define AMAIZING_SCORE 600
-#define RUN_NUMBER 5
 
 using namespace std;
 /*
@@ -41,15 +24,15 @@ bool _secondPlayerFoul = false;
  * Score between 0 and MAX_SCORE
  */
 
-char p1Start = '&';
-char p2Start = 233;
+unsigned char p1Start = '&';
+unsigned char p2Start = 233;
 
-char creditKey = '(';
+unsigned char creditKey = '(';
 
-char p1Switch = 'w';
-char p2Switch = 'x';
+unsigned char p1Switch = 'w';
+unsigned char p2Switch = 'x';
 
-char quitKey = 'q';
+unsigned char quitKey = 'q';
 
 int nbGamesPlayed = 0;
 int highScore = MAX_SCORE;
@@ -61,6 +44,113 @@ short lastScoreP1 = -1;
 short lastScoreP2 = -1;
 
 Console *con;
+
+unsigned char redefineKey(string marquee)
+{
+    bool keyIsValid = false;
+    int buffer = 0;
+
+    raw();
+    while (false == keyIsValid)
+    {
+        BEEP();
+        con->setMarquee(marquee);
+        con->win_refresh();
+        buffer = getch();
+        if (buffer < 256 && KEY_F(1) != buffer)
+            keyIsValid = true;
+    }
+
+    return (unsigned char)buffer;
+}
+
+/*
+ * Reconfigure keys.
+ */
+
+void keyConfig()
+{
+    unsigned char p1StartBuffer = 0;
+    unsigned char p2StartBuffer = 0;
+
+    unsigned char creditKeyBuffer = 0;
+
+    unsigned char p1SwitchBuffer = 0;
+    unsigned char p2SwitchBuffer = 0;
+
+    unsigned char quitKeyBuffer = 0;
+
+    raw();
+    // Starts
+    bool isValid = false;
+    while (false == isValid)
+    {
+        p1StartBuffer = redefineKey(CONFIG_P1START);
+        isValid = true;
+    }
+    isValid = false;
+    while (false == isValid)
+    {
+        p2StartBuffer = redefineKey(CONFIG_P2START);
+        isValid = p1StartBuffer != p2StartBuffer;
+    }
+
+    // Credit
+    isValid = false;
+    while (false == isValid)
+    {
+        creditKeyBuffer = redefineKey(CONFIG_CREDIT);
+        isValid = p1StartBuffer   != creditKeyBuffer &&
+                  p2StartBuffer   != creditKeyBuffer;
+    }
+
+    // Buttons
+    isValid = false;
+    while (false == isValid)
+    {
+        p1SwitchBuffer = redefineKey(CONFIG_P1BUTTON);
+        isValid = p1StartBuffer   != p1SwitchBuffer &&
+                  p2StartBuffer   != p1SwitchBuffer &&
+                  creditKeyBuffer != p1SwitchBuffer;
+    }
+    isValid = false;
+    while (false == isValid)
+    {
+        p2SwitchBuffer = redefineKey(CONFIG_P2BUTTON);
+        isValid = p1StartBuffer   != p2SwitchBuffer &&
+                  p2StartBuffer   != p2SwitchBuffer &&
+                  creditKeyBuffer != p2SwitchBuffer &&
+                  p1SwitchBuffer  != p2SwitchBuffer;
+    }
+
+    // Quit
+    isValid = false;
+    while (false == isValid)
+    {
+        quitKeyBuffer = redefineKey(CONFIG_QUIT);
+        isValid = p1StartBuffer   != quitKeyBuffer &&
+                  p2StartBuffer   != quitKeyBuffer &&
+                  creditKeyBuffer != quitKeyBuffer &&
+                  p1SwitchBuffer  != quitKeyBuffer &&
+                  p2SwitchBuffer  != quitKeyBuffer;
+    }
+
+    p1Start = p1StartBuffer;
+    p2Start = p2StartBuffer;
+
+    creditKey = creditKeyBuffer;
+
+    p1Switch = p1SwitchBuffer;
+    p2Switch = p2SwitchBuffer;
+
+    quitKey = quitKeyBuffer;
+
+    writeConfigFile();
+}
+
+/*
+ * Get current run number.
+ */
 
 string getRunNumber(int currentRunNumber, int totalRunNumber)
 {
@@ -473,6 +563,10 @@ void nonFreeGameLoop()
 
             cycle = 5;
         }
+        else if (KEY_F(1) == button)
+        {
+            keyConfig();
+        }
         else if (quitKey == button)
         {
             doStop = true;
@@ -516,6 +610,10 @@ void freeGameLoop()
         {
             doStop = true;
         }
+        else if (KEY_F(1) == button)
+        {
+            keyConfig();
+        }
             
         cycle = (cycle + 1) % 6;
     }
@@ -535,7 +633,7 @@ void errorReadingConfigFile()
  * Get char from config file.
  */
 
-char getConfigFileChar(ifstream &configFile)
+unsigned char getConfigFileChar(ifstream &configFile)
 {
     string data;
 
@@ -544,7 +642,7 @@ char getConfigFileChar(ifstream &configFile)
     else
         errorReadingConfigFile();
 
-    return data[0];
+    return (unsigned char)data[0];
 }
 
 /*
@@ -652,11 +750,8 @@ int main(int argc, char *argv[])
     raw();
     noecho();
     curs_set(0);
+    keypad(stdscr, TRUE);
     con = new Console();
-
-    con->setMarquee(INSERT_COIN);
-    con->setScore1(lastScoreP1);
-    con->setScore2(lastScoreP2);
     
     if(false == freeGame)
         nonFreeGameLoop();
