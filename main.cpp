@@ -24,6 +24,7 @@
 #define MAX_SCORE 9999
 #define CONFIG_FILE "rtime.cfg"
 #define AMAIZING_SCORE 600
+#define RUN_NUMBER 5
 
 using namespace std;
 /*
@@ -60,6 +61,17 @@ short lastScoreP1 = -1;
 short lastScoreP2 = -1;
 
 Console *con;
+
+string getRunNumber(int currentRunNumber, int totalRunNumber)
+{
+    ostringstream oss (ostringstream::out);
+    oss << "Run " << currentRunNumber + 1 << "/" << totalRunNumber;
+    return oss.str();
+}
+
+/*
+ * Updates scores statistics.
+ */
 
 void updateScores(int score, bool foul)
 {
@@ -309,8 +321,11 @@ void onePlayerGame()
 
     _firstPlayerFoul = false;
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < RUN_NUMBER; ++i)
     {
+        con->setMarquee(getRunNumber(i, RUN_NUMBER));
+        con->win_refresh();
+        
         long long currentTime = reactionTimeSolo();
         totalTime += currentTime;
         con->setScore1(score(currentTime));
@@ -341,8 +356,11 @@ void twoPlayerGame()
     long long totalScore1 = 0L;
     long long totalScore2 = 0L;
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < RUN_NUMBER; ++i)
     {
+        con->setMarquee(getRunNumber(i, RUN_NUMBER));
+        con->win_refresh();
+
         long long currentScore1 = 0L;
         long long currentScore2 = 0L;
         reactionTimeDuo(currentScore1, currentScore2);
