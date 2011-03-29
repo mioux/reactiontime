@@ -8,7 +8,7 @@
 #include "Console.h"
 #include <assert.h>
 
-#define VERSION "Version 0.9"
+#define VERSION "Version 0.11"
 #define MARQUEE_MAX_SIZE 16
 #define TEXT_MAX_SIZE 6
 

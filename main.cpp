@@ -23,6 +23,7 @@
 #define FREE_GAME_SWITCH "--free-game"
 #define MAX_SCORE 9999
 #define CONFIG_FILE "rtime.cfg"
+#define AMAIZING_SCORE 600
 
 using namespace std;
 /*
@@ -53,11 +54,34 @@ int nbGamesPlayed = 0;
 int highScore = MAX_SCORE;
 int averageScore = MAX_SCORE;
 int amaizingScore = 0;
+int nbGamesFouled = 0;
 
 short lastScoreP1 = -1;
 short lastScoreP2 = -1;
 
 Console *con;
+
+void updateScores(int score, bool foul)
+{
+    if (false == foul)
+    {
+        if (score < highScore)
+            highScore = score;
+
+        if (score < AMAIZING_SCORE)
+            ++amaizingScore;
+
+        averageScore = (averageScore * (nbGamesPlayed - nbGamesFouled) + score)
+                                               /
+                                (nbGamesPlayed - nbGamesFouled + 1);
+    }
+
+    ++nbGamesPlayed;
+    if (true == foul)
+        ++nbGamesFouled;
+
+    writeConfigFile();
+}
 
 /*
  * Implementation of sleep for DOS.
@@ -99,12 +123,12 @@ short score(long long realScore)
  * Difference in micromilliseconds of 2 timevals.
  * Remarks : In long, because total time should overflow.
  */
-long long totalMilliseconds(const timeval * const start, const timeval * const end)
+long long totalMilliseconds(const timeval * const end, const timeval * const start)
 {
-    long long totalStart = start->tv_usec + 1000000L * start->tv_sec;
     long long totalEnd = end->tv_usec + 1000000L * end->tv_sec;
+    long long totalStart = start->tv_usec + 1000000L * start->tv_sec;
 
-    return (totalStart - totalEnd) / 1000L;
+    return (totalEnd - totalStart) / 1000L;
 }
 
 /*
@@ -118,19 +142,20 @@ long long reactionTimeSolo()
     // Structures for precise time.
     timeval *startTime = (timeval *)malloc(sizeof(struct timeval));
     timeval *endTime = (timeval *)malloc(sizeof(struct timeval));
-    timeval *diffTime = (timeval *)malloc(sizeof(struct timeval));
 
-    if (startTime == NULL || endTime == NULL || diffTime == NULL)
+    if (startTime == NULL || endTime == NULL)
     {
         cerr << ERRER_WITH_TIME << endl;
         exit(EXIT_FAILURE);
     }
 
-    beep();
+    BEEP();
     con->setScore1(READY);
     con->win_refresh();
 
-    halfdelay(getRandomTimeToWait());
+    int timeToWait = getRandomTimeToWait();
+    gettimeofday(startTime, NULL);
+    halfdelay(timeToWait);
 
     bool waitTimeExpired = false;
     while (false == waitTimeExpired)
@@ -139,7 +164,13 @@ long long reactionTimeSolo()
         if (ERR != button)
         {
             _firstPlayerFoul = true;
-            halfdelay(getRandomTimeToWait());
+
+            gettimeofday(endTime, NULL);
+            timeToWait -= totalMilliseconds(endTime, startTime) / 100;
+            timeToWait = timeToWait > 1 ? timeToWait : 1;
+            con->win_refresh();
+            halfdelay(timeToWait);
+
             con->setScore1(FOUL);
             con->win_refresh();
         }
@@ -167,11 +198,9 @@ long long reactionTimeSolo()
 
     free(startTime);
     free(endTime);
-    free(diffTime);
 
     startTime = NULL;
     endTime = NULL;
-    diffTime = NULL;
 
     con->setScore1(score(totalTime));
     con->win_refresh();
@@ -190,20 +219,21 @@ void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2)
 
     timeval *startTime = (timeval *)malloc(sizeof(struct timeval));
     timeval *endTime = (timeval *)malloc(sizeof(struct timeval));
-    timeval *diffTime = (timeval *)malloc(sizeof(struct timeval));
 
-    if (startTime == NULL || endTime == NULL || diffTime == NULL)
+    if (startTime == NULL || endTime == NULL)
     {
-        cerr << "Error creating time structure" << endl;
+        cerr << ERRER_WITH_TIME << endl;
         exit(EXIT_FAILURE);
     }
 
-    beep();
+    BEEP();
     con->setScore1(READY);
     con->setScore2(READY);
     con->win_refresh();
     
-    halfdelay(getRandomTimeToWait());
+    int timeToWait = getRandomTimeToWait();
+    gettimeofday(startTime, NULL);
+    halfdelay(timeToWait);
     bool waitExpired = false;
 
     while (false == waitExpired)
@@ -214,19 +244,22 @@ void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2)
             _firstPlayerFoul = true;
             con->setScore1(FOUL);
             con->win_refresh();
-            halfdelay(getRandomTimeToWait());
         }
         else if (p2Switch == button)
         {
             _secondPlayerFoul = true;
             con->setScore2(FOUL);
             con->win_refresh();
-            halfdelay(getRandomTimeToWait());
         }
         else if (ERR == button)
         {
             waitExpired = true;
         }
+
+        gettimeofday(endTime, NULL);
+        timeToWait -= totalMilliseconds(endTime, startTime) / 100;
+        timeToWait = timeToWait > 1 ? timeToWait : 1;
+        halfdelay(timeToWait);
     }
 
     raw();
@@ -257,11 +290,9 @@ void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2)
 
     free(startTime);
     free(endTime);
-    free(diffTime);
 
     startTime = NULL;
     endTime = NULL;
-    diffTime = NULL;
 }
 
 /*
@@ -293,6 +324,8 @@ void onePlayerGame()
         lastScoreP1 = -1;
 
     lastScoreP2 = -1;
+
+    updateScores(totalTime, _firstPlayerFoul);
 }
 
 /*
@@ -332,6 +365,9 @@ void twoPlayerGame()
         lastScoreP2 = totalScore2;
     else
         lastScoreP2 = -1;
+
+    updateScores(totalScore1, _firstPlayerFoul);
+    updateScores(totalScore2, _secondPlayerFoul);
 }
 
 void attractMode(short cycle)
@@ -371,6 +407,11 @@ void attractMode(short cycle)
             con->setScore2(nbGamesPlayed);
             break;
         case 4:
+            // Nb of fouled games
+            con->setScore1(FOULED);
+            con->setScore2(nbGamesFouled);
+            break;
+        case 5:
             // Nb of amaizing games
             con->setScore1(AMAIZING_GAMES);
             con->setScore2(amaizingScore);
@@ -412,14 +453,14 @@ void nonFreeGameLoop()
             else
                 onePlayerGame();
 
-            cycle = 4;
+            cycle = 5;
         }
         else if (quitKey == button)
         {
             doStop = true;
         }
 
-        cycle = (cycle + 1) % 5;
+        cycle = (cycle + 1) % 6;
     }
 }
 
@@ -446,19 +487,19 @@ void freeGameLoop()
         if (p1Start == button)
         {
             onePlayerGame();
-            cycle = 4;
+            cycle = 5;
         }
         else if (p2Start == button)
         {
             twoPlayerGame();
-            cycle = 4;
+            cycle = 5;
         }
         else if (quitKey == button)
         {
             doStop = true;
         }
             
-        cycle = (cycle + 1) % 5;
+        cycle = (cycle + 1) % 6;
     }
 }
 
@@ -525,6 +566,7 @@ void writeConfigFile()
         configFile << nbGamesPlayed << endl;
         configFile << averageScore << endl;
         configFile << amaizingScore << endl;
+        configFile << nbGamesFouled << endl;
 
         configFile.close();
     }
@@ -557,6 +599,7 @@ void readConfigFile()
         nbGamesPlayed = getConfigFileInt(configFile);
         averageScore = getConfigFileInt(configFile);
         amaizingScore = getConfigFileInt(configFile);
+        nbGamesFouled = getConfigFileInt(configFile);
 
         configFile.close();
     }

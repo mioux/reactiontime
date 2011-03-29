@@ -10,7 +10,6 @@
 
 #include <iostream>
 
-extern void writeDefaultConfigFile();
 extern short score(long long realScore);
 extern long long totalMilliseconds(const timeval * const start, const timeval * const end);
 extern long long reactionTimeSolo();
@@ -24,6 +23,8 @@ extern char getConfigFileChar(ifstream &configFile);
 extern int getConfigFileInt(ifstream &configFile);
 extern void writeConfigFile();
 extern void readConfigFile();
+
+#define BEEP() cout << '\a';
 
 #endif	/* MAIN_H */
 
