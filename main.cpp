@@ -45,6 +45,39 @@ short lastScoreP2 = -1;
 
 Console *con;
 
+/*
+ * Show keys configured.
+ */
+void showKeys(string marquee, unsigned char button1, unsigned char button2)
+{
+    con->setMarquee(marquee);
+    ostringstream btn1Text (ostringstream::out);
+    btn1Text << button1;
+    ostringstream btn2Text (ostringstream::out);
+    btn2Text << button2;
+    con->setScore1(btn1Text.str());
+    con->setScore2(btn2Text.str());
+    con->win_refresh();
+    getch();
+}
+
+/*
+ * Show current configured keys.
+ */
+
+void showConfig()
+{
+    halfdelay(20);
+
+    showKeys(CONFIG_KEY_SHOW_START, p1Start, p2Start);
+    showKeys(CONFIG_KEY_SHOW_BUTTON, p1Switch, p2Switch);
+    showKeys(CONFIG_KEY_SHOW_CREDIT_QUIT, creditKey, quitKey);
+}
+
+/*
+ * Redefines the keys.
+ */
+
 unsigned char redefineKey(string marquee)
 {
     bool keyIsValid = false;
@@ -57,7 +90,7 @@ unsigned char redefineKey(string marquee)
         con->setMarquee(marquee);
         con->win_refresh();
         buffer = getch();
-        if (buffer < 256 && KEY_F(1) != buffer)
+        if (buffer < 256 && KEY_F(1) != buffer && KEY_F(2) != buffer)
             keyIsValid = true;
     }
 
@@ -566,6 +599,12 @@ void nonFreeGameLoop()
         else if (KEY_F(1) == button)
         {
             keyConfig();
+            cycle = 5;
+        }
+        else if (KEY_F(2) == button)
+        {
+            showConfig();
+            cycle = 5;
         }
         else if (quitKey == button)
         {
@@ -613,6 +652,12 @@ void freeGameLoop()
         else if (KEY_F(1) == button)
         {
             keyConfig();
+            cycle = 5;
+        }
+        else if (KEY_F(2) == button)
+        {
+            showConfig();
+            cycle = 5;
         }
             
         cycle = (cycle + 1) % 6;

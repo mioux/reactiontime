@@ -42,6 +42,7 @@ extern void readConfigFile();
 extern unsigned char redefineKey(string marquee);
 extern void timeConsumingSleep(long long timeToWait);
 extern short score(long long realScore);
+extern void showConfig();
 extern long long totalMilliseconds(const timeval * const start, const timeval * const end);
 extern void twoPlayerGame();
 extern void updateScores(int score, bool foul);

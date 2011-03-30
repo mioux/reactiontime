@@ -9,7 +9,7 @@
 #include "displaystrings.h"
 #include <assert.h>
 
-#define VERSION "Version 0.14"
+#define VERSION "Version 0.15"
 #define MARQUEE_MAX_SIZE 16
 #define TEXT_MAX_SIZE 6
 
@@ -26,7 +26,8 @@ Console::Console()
     int x_center = (COLS - SCREEN_X) / 2;
     int y_center = (LINES - SCREEN_Y) / 2;
 
-    mvprintw(LINES - 1, 0, CONFIG_KEY);
+    mvprintw(LINES - 2, 0, CONFIG_KEY);
+    mvprintw(LINES - 1, 0, CONFIG_KEY_SHOW);
     mvprintw(LINES - 1, COLS - strlen(VERSION), VERSION);
     refresh();
 
