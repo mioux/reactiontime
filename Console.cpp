@@ -9,7 +9,7 @@
 #include "displaystrings.h"
 #include <assert.h>
 
-#define VERSION "Version 0.16"
+#define VERSION "Version 0.17"
 #define MARQUEE_MAX_SIZE 16
 #define TEXT_MAX_SIZE 6
 

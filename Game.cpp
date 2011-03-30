@@ -80,6 +80,8 @@ unsigned char Game::RedefineKey(string marquee) {
     while (false == keyIsValid) {
         BEEP();
         this->_con->setMarquee(marquee);
+        this->_con->setScore1("");
+        this->_con->setScore2("");
         this->_con->win_refresh();
         buffer = getch();
         if (buffer < 256 && KEY_F(1) != buffer && KEY_F(2) != buffer)
@@ -694,4 +696,3 @@ void Game::ReadConfigFile() {
         this->WriteConfigFile();
     }
 }
-
