@@ -26,28 +26,6 @@
 #define AMAIZING_SCORE 600
 #define RUN_NUMBER 5
 
-extern void attractMode(short cycle);
-extern void errorReadingConfigFile();
-extern void freeGameLoop();
-extern unsigned char getConfigFileChar(ifstream &configFile);
-extern int getConfigFileInt(ifstream &configFile);
-extern int getRandomTimeToWait();
-extern string getRunNumber(int currentRunNumber, int totalRunNumber);
-extern void keyConfig();
-extern void nonFreeGameLoop();
-extern void onePlayerGame();
-extern void reactionTimeDuo(long long &currentTimeP1, long long &currentTimeP2);
-extern long long reactionTimeSolo();
-extern void readConfigFile();
-extern unsigned char redefineKey(string marquee);
-extern void timeConsumingSleep(long long timeToWait);
-extern short score(long long realScore);
-extern void showConfig();
-extern long long totalMilliseconds(const timeval * const start, const timeval * const end);
-extern void twoPlayerGame();
-extern void updateScores(int score, bool foul);
-extern void writeConfigFile();
-
 #define BEEP() cout << '\a';
 
 #endif	/* MAIN_H */
