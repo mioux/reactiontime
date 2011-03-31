@@ -64,7 +64,8 @@ Console::Console(const Console& orig) {
  */
 
 Console::~Console() {
-
+	free(this->_window);
+	this->_window = NULL;
 }
 
 /*
